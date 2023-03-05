@@ -1,0 +1,210 @@
+Problem Links :
+
+Div 3 Round 855
+
+C1. https://codeforces.com/contest/1800/problem/C1
+
+C2. https://codeforces.com/contest/1800/problem/C2
+
+
+
+Problem Statement Explanations : 
+
+
+We need to find the maximum possible total power of the army that can be achieved by adding the power of the bonus cards to the hero cards. The key to solving this problem is to use a stack to keep track of the bonus cards that have been collected so far. Whenever we encounter a hero card, we add the power of the top bonus card to the hero's power, and then discard that bonus card. 
+
+
+One way is , The complexity of the algorithm is O(n) since we are iterating over the list of cards only once.
+
+Here for both problems we have different constraints - which make this problem more interesting without priority as we have to work more without pq.
+
+
+Basically thought of explaining two different approaches for the problems.
+
+
+1. Without using Priority Queue.
+
+
+``` 
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<int> s(n);
+        for (int i = 0; i < n; i++) {
+            cin >> s[i];
+        }
+
+        int ans = 0, cur = 0, max_bonus = 0;
+        for (int i = 0; i < n; i++) {
+            if (s[i] == 0) {
+                ans += cur + max_bonus;
+                cur = 0;
+                max_bonus = 0;
+            } else {
+                cur += s[i];
+                max_bonus = max(max_bonus, s[i]);
+            }
+        }
+        ans += cur + max_bonus;
+        cout << ans << endl;
+    }
+    return 0;
+}
+```
+
+in this code : 
+
+Explanation:
+
+We initialize ans to 0, which will eventually store the total power of the army. We also initialize cur and max_bonus to 0.
+
+We iterate over the vector s from left to right using a for loop. For each element, if it's a hero card (i.e., s[i] > 0), we add its power to cur, which represents the current hero's power after adding all the bonuses so far. We also update max_bonus to be the maximum of max_bonus and s[i], which represents the maximum bonus available so far.
+
+If it's a zero card (i.e., s[i] == 0), it means that we have reached a hero card, and we need to add the current hero's power (cur) plus the maximum bonus available (max_bonus) to the answer (ans). We then reset cur and max_bonus to 0, since we are now starting a new hero.
+Finally, after the loop ends, we add cur and max_bonus to ans, since there may be a hero left at the bottom of the deck that we haven't processed yet.
+We output the final answer for each test case.
+This approach has a time complexity of O(n), since we only need to iterate over the vector s once.
+
+
+
+
+Approach 2 : With using Priority Queue :
+
+
+
+```
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+
+        // Create an empty priority queue to store bonuses
+        priority_queue<int> bonuses;
+
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            int power;
+            cin >> power;
+
+            if (power == 0) { // if card is a hero
+                if (!bonuses.empty()) { // if there are bonuses available
+                    ans += bonuses.top(); // add the highest bonus to the hero's power
+                    bonuses.pop(); // remove the used bonus from the queue
+                }
+            } else { // if card is a bonus
+                bonuses.push(power); // add it to the queue
+            }
+        }
+
+        cout << ans << endl;
+    }
+    return 0;
+}
+```
+Explanation :
+
+Approach 2:
+
+We can use a max heap (priority queue) to keep track of the available bonus card powers. We'll insert each bonus card power into the heap as we encounter it while scanning the deck from top to bottom.
+When we encounter a hero card, we'll pop the maximum bonus card power from the heap (if it's not empty), add it to the hero card power, and add the resulting hero card power to our total army power.
+After processing all the cards in the deck, the total army power will be our answer.
+
+
+
+Ultimately , The main difference between approach 1 and approach 2 is the way they handle the bonus cards.
+
+Approach 1 sorts all the bonus cards in descending order and maintains two pointers, one at the beginning of the bonus cards and another at the end. It then iterates over the deck of cards, and if the current card is a hero card, it takes the topmost bonus card, adds its value to the hero's power, and discards the bonus card. This continues until all the hero cards are exhausted or all the bonus cards are exhausted.
+
+Approach 2 uses a priority queue (heap) to store the bonus cards. It also iterates over the deck of cards, and if the current card is a hero card, it takes the topmost bonus card from the priority queue, adds its value to the hero's power, and discards the bonus card.
+
+Approach 2 has the advantage of not needing to sort the bonus cards and can process the deck of cards in linear time using the priority queue. On the other hand, approach 1 sorts the bonus cards in linear time but may take longer to process the deck of cards if there are many hero cards before the first bonus card.
+
+
+
+
+
+Java Codes for both :
+
+App1 :
+```
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int t = sc.nextInt();
+        while (t-- > 0) {
+            int n = sc.nextInt();
+            int[] s = new int[n];
+            for (int i = 0; i < n; i++) {
+                s[i] = sc.nextInt();
+            }
+            Arrays.sort(s); // sort the array in non-increasing order
+            int i = n - 1, j = 0;
+            long ans = 0, sum = 0;
+            while (i >= j) {
+                if (j == i || s[j] == 0) {
+                    ans += sum;
+                    sum = 0;
+                    j++;
+                } else if (sum >= s[i]) {
+                    sum += s[j];
+                    j++;
+                } else {
+                    sum += s[i];
+                    i--;
+                }
+            }
+            System.out.println(ans);
+        }
+        sc.close();
+    }
+}
+```
+
+Approach 2 : 
+```
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int t = sc.nextInt();
+        while (t-- > 0) {
+            int n = sc.nextInt();
+            int[] s = new int[n];
+            for (int i = 0; i < n; i++) {
+                s[i] = sc.nextInt();
+            }
+            PriorityQueue<Integer> bonus = new PriorityQueue<>(Collections.reverseOrder());
+            long ans = 0;
+            for (int i = 0; i < n; i++) {
+                if (s[i] == 0) {
+                    if (!bonus.isEmpty()) {
+                        ans += bonus.poll();
+                    }
+                } else {
+                    bonus.add(s[i]);
+                }
+            }
+            System.out.println(ans);
+        }
+        sc.close();
+    }
+}
+```
